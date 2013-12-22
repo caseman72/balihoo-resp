@@ -67,6 +67,9 @@ app.get("*", function(req, res) {
 	else if (q === "Source") {
 		res.send("https://github.com/caseman72/balihoo-resp");
 	}
+	else if (q === "Resume") {
+		res.send("http://www.manion.org/resume");
+	}
 	else if (q === "Email Address") {
 		res.send("casey@manion.com");
 	}
