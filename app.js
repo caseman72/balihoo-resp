@@ -65,7 +65,7 @@ app.get("*", function(req, res) {
 		res.send("http://careers.stackoverflow.com/jobs/45751/senior-scala-software-developer-on-an-incredible-balihoo");
 	}
 	else if (q === "Source") {
-		res.send("http://");
+		res.send("https://github.com/caseman72/balihoo-resp");
 	}
 	else if (q === "Email Address") {
 		res.send("casey@manion.com");
