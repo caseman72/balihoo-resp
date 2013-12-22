@@ -7,42 +7,6 @@ var config = {
 	node_debug: process.env.NODE_DEBUG ? true : false
 };
 
-// apache log format
-var short_month = function(index) {
-	var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-	return months[index].slice(0,3);
-};
-
-var pad_zeros = function(int) {
-	return ((+int < 10 ? "0" : "")+int);
-};
-
-var apache_log = function(req, res, len) {
-	var time_stamp = new Date();
-	var combined_log = '{ip} - - [{day}/{mon}/{year}:{hour}:{min}:{sec} {tz}] \"{method} {url} HTTP{s}/{v}" {code} {len} "{referer}" "{ua}"'.format({
-		ip: req.headers["x-forwarded-for"] && req.headers["x-forwarded-for"].replace(/[ ]+|(?:,\s*127\.0\.0\.1)/g, "") || req.connection.remoteAddress || "127.0.0.1",
-		day: pad_zeros(time_stamp.getUTCDate()),
-		mon: short_month(time_stamp.getMonth()),
-		year: time_stamp.getUTCFullYear(),
-		hour: pad_zeros(time_stamp.getUTCHours()),
-		min: pad_zeros(time_stamp.getUTCMinutes()),
-		sec: pad_zeros(time_stamp.getUTCSeconds()),
-		tz: "+0000",
-		method: req.method,
-		url: req.url,
-		s: req.connection.encrypte ? "S" : "",
-		v: req.httpVersion,
-		code: res.statusCode,
-		len: len || "-",
-		referer: req.headers["referer"] || req.headers["referrer"] || "-",
-		ua: req.headers["user-agent"]
-	});
-
-	// log to stdout
-	console.log( combined_log );
-};
-
-
 var app = express();
 app.configure(function() {
 	app
@@ -54,7 +18,6 @@ app.get("*", function(req, res) {
 	res.set("Content-Type", "text/plain");
 
 	var q = req.query.q || "";
-
 	if (q === "Ping") {
 		res.send("OK");
 	}
@@ -121,18 +84,18 @@ app.get("*", function(req, res) {
 			}
 		}
 
-		// do all the other chars 
+		// do all the other chars
 		for (var i=0; i<4; i++) {
 			var letter = answer[i][0];
 			for (var j=1; j<5; j++) {
 				if (answer[i][j] !== "=" && answer[i][j].length === 1) {
 					var char = letter_char[ answer[j-1][0] ];
-					answer[i][j] = char === "=" ? letter_char[letter] : rev_char[ char ]; 
+					answer[i][j] = char === "=" ? letter_char[letter] : rev_char[ char ];
 				}
 			}
 		}
 
-		// send anaser
+		// send answer
 		res.send(" ABCD\n{0}\n{1}\n{2}\n{3}\n".format(answer[0].join(""), answer[1].join(""), answer[2].join(""), answer[3].join("")).replace(/\$/g, ""));
 	}
 	else {
@@ -140,12 +103,51 @@ app.get("*", function(req, res) {
 		res.send("Hello World! ({0})".format(host));
 	}
 
-	console.log(req.headers);
-	console.log(req.query);
+	// debuggin
+	if (config.node_debug) {
+		console.log(req.headers);
+		console.log(req.query);
+	}
 
-	// log - always 200's
+	// access_log
 	apache_log(req, res, res._headers["content-length"]);
 });
 
 app.listen(config.server_port, function(){ console.log("Listening on {0}".format(config.server_port)); });
+
+
+// apache log format
+var short_month = function(index) {
+	var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	return months[index].slice(0,3);
+};
+
+var pad_zeros = function(int) {
+	return ((+int < 10 ? "0" : "")+int);
+};
+
+var apache_log = function(req, res, len) {
+	var time_stamp = new Date();
+	var combined_log = '{ip} - - [{day}/{mon}/{year}:{hour}:{min}:{sec} {tz}] \"{method} {url} HTTP{s}/{v}" {code} {len} "{referer}" "{ua}"'.format({
+		ip: req.headers["x-forwarded-for"] && req.headers["x-forwarded-for"].replace(/[ ]+|(?:,\s*127\.0\.0\.1)/g, "") || req.connection.remoteAddress || "127.0.0.1",
+		day: pad_zeros(time_stamp.getUTCDate()),
+		mon: short_month(time_stamp.getMonth()),
+		year: time_stamp.getUTCFullYear(),
+		hour: pad_zeros(time_stamp.getUTCHours()),
+		min: pad_zeros(time_stamp.getUTCMinutes()),
+		sec: pad_zeros(time_stamp.getUTCSeconds()),
+		tz: "+0000",
+		method: req.method,
+		url: req.url,
+		s: req.connection.encrypte ? "S" : "",
+		v: req.httpVersion,
+		code: res.statusCode,
+		len: len || "-",
+		referer: req.headers["referer"] || req.headers["referrer"] || "-",
+		ua: req.headers["user-agent"]
+	});
+
+	// log to stdout
+	console.log( combined_log );
+};
 
