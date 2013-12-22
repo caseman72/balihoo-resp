@@ -84,8 +84,8 @@ app.get("*", function(req, res) {
 	}
 	else if (q === "Degree") {
 		var degrees = [
-			"Oregon State University Corvallis, Oregon",
-			"Bachelor of Science, Computer Science, summa cum laude, 2003–2005",
+			"Oregon State University Corvallis, Oregon                            ",
+			"Bachelor of Science, Computer Science, summa cum laude, 2003–2005    ",
 			"Bachelor of Science, Chemical Engineering, magna cum laude, 1990–1994"
 		];
 		res.send(degrees.join("\n"));
